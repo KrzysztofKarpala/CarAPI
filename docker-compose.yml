@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8085:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
+  carapi:
+    image: ${DOCKER_REGISTRY-}carapi
+    build:
+      context: .
+      dockerfile: CarAPI/Dockerfile
+    ports:
+     - 8092:80
+
+  carfakeservice:
+    image: ${DOCKER_REGISTRY-}carfakeservice
+    build:
+      context: .
+      dockerfile: CarFakeService/Dockerfile
+    ports:
+     - 8091:80
