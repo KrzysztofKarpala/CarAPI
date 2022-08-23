@@ -54,8 +54,8 @@ namespace CarAPI.Controllers
         /// <param name="NewRequest"></param>
         /// <returns></returns>
 
-        [HttpPost("PostRequestToFakeCarService")]
-        public async Task<IActionResult> CreateAsyncToFakeCarService([FromBody] CarRequestDto NewRequest)
+        [HttpPost("PostRequestToFakeCarService/{ToPublish:bool}")]
+        public async Task<IActionResult> CreateAsyncToFakeCarService(bool ToPublish, [FromBody] CarRequestDto NewRequest)
         {
             try
             {
@@ -73,6 +73,11 @@ namespace CarAPI.Controllers
                     {
                         _logger.LogWarning(LogEvents.CarResponseBadRequest, "Bad request, car fake service response statuscode is null");
                         return BadRequest();
+                    }
+                    if(ToPublish == true)
+                    {
+                        var sendMessageCommand = new SendMessageCommand { CarResponseDto = carResponse };
+                        await _mediator.Send(sendMessageCommand);
                     }
                     var checkCarResponseQuery = new CheckCarResponseQuery { CarId = carResponse.CarId };
                     var checkResponse = await _mediator.Send(checkCarResponseQuery);

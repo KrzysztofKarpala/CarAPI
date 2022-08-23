@@ -12,11 +12,17 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - 8085:8081
+      - 8090:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+  rabbitmq-carapi:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq-carapi'
+    ports:
+        - 5672:5672
+        - 15672:15672
 
   carapi:
     image: ${DOCKER_REGISTRY-}carapi
@@ -25,6 +31,8 @@ services:
       dockerfile: CarAPI/Dockerfile
     ports:
      - 8092:80
+    depends_on:
+     - "rabbitmq-carapi"
 
   carfakeservice:
     image: ${DOCKER_REGISTRY-}carfakeservice
@@ -33,3 +41,25 @@ services:
       dockerfile: CarFakeService/Dockerfile
     ports:
      - 8091:80
+    depends_on:
+     - "carapi"
+
+  consumerapi1:
+    image: ${DOCKER_REGISTRY-}consumerapi1
+    build:
+      context: .
+      dockerfile: ConsumerApi1/Dockerfile
+    ports:
+     - 8093:80
+    depends_on:
+     - "carapi"
+
+  consumerapi2:
+    image: ${DOCKER_REGISTRY-}consumerapi2
+    build:
+      context: .
+      dockerfile: ConsumerApi2/Dockerfile
+    ports:
+     - 8094:80
+    depends_on:
+     - "carapi"

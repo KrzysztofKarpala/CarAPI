@@ -1,6 +1,7 @@
-using CarAPI.Core.Repository;
-using CarAPI.Infrastructure.Mongo.Document;
-using CarAPI.Infrastructure.Mongo.Repositories;
+using ConsumerApi2.Core.Repository;
+using ConsumerApi2.Infrastructure.Mongo.Document;
+using ConsumerApi2.Infrastructure.Mongo.Repositories;
+using ConsumerApi2.Service;
 using MediatR;
 using Messaging.Shared;
 using Microsoft.OpenApi.Models;
@@ -8,16 +9,13 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMediatR(typeof(Program));
-
-builder.Services.Configure<CarDatabaseSettings>(
-    builder.Configuration.GetSection("CarDatabase"));
-
-builder.Services.AddScoped<ICarRepository, CarRepository>();
-builder.Services.AddSingleton<IRabbitMqCarApiRepository, RabbitMqCarApiRepository>();
-builder.Services.AddScoped<HttpClient, HttpClient>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Add services to the container.
+
+builder.Services.AddMediatR(typeof(Program));
+builder.Services.Configure<ConsumerDatabaseSettings>(
+    builder.Configuration.GetSection("Consumer2Db"));
+builder.Services.AddSingleton<IConsumerRepository, ConsumerRepository>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,9 +24,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Car API",
+        Title = "Consumer2",
         Version = "v1.0",
-        Description = "Communication with car company."
+        Description = "Consumer to communicate with RabbitMQ"
     });
 
     // Set the comments path for the Swagger JSON and UI.
@@ -38,7 +36,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.SetUpRabbitMq(builder.Configuration);
-builder.Services.AddSingleton<RabbitMqCarApiRepository>();
+builder.Services.AddHostedService<ConsumerService>();
 
 var app = builder.Build();
 

@@ -6,7 +6,10 @@
       "serviceActions": {
         "mongo": "StartWithoutDebugging",
         "mongo-express": "StartWithoutDebugging",
-        "carapi": "StartDebugging"
+        "carapi": "StartDebugging",
+        "carfakeservice": "StartDebugging",
+        "consumerapi1": "StartDebugging",
+        "consumerapi2": "StartDebugging"
       }
     }
   }

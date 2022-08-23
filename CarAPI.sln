@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarAPI", "CarAPI\CarAPI.csp
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{78118CBC-2500-41DC-A84F-BC84BB323C09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarFakeService", "CarFakeService\CarFakeService.csproj", "{655699D0-A984-462E-A63F-5EE11E9061D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarFakeService", "CarFakeService\CarFakeService.csproj", "{655699D0-A984-462E-A63F-5EE11E9061D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Shared", "Messaging.Shared\Messaging.Shared.csproj", "{69DB1ABD-5160-4211-A921-4AE691C15598}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsumerApi1", "ConsumerApi1\ConsumerApi1.csproj", "{AB5FCC4D-ACB1-4F21-BE9F-8EDE96C01376}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsumerApi2", "ConsumerApi2\ConsumerApi2.csproj", "{273F6142-EC29-47C0-BDCC-DFDDC271690A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,18 @@ Global
 		{655699D0-A984-462E-A63F-5EE11E9061D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{655699D0-A984-462E-A63F-5EE11E9061D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{655699D0-A984-462E-A63F-5EE11E9061D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69DB1ABD-5160-4211-A921-4AE691C15598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69DB1ABD-5160-4211-A921-4AE691C15598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69DB1ABD-5160-4211-A921-4AE691C15598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69DB1ABD-5160-4211-A921-4AE691C15598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB5FCC4D-ACB1-4F21-BE9F-8EDE96C01376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB5FCC4D-ACB1-4F21-BE9F-8EDE96C01376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB5FCC4D-ACB1-4F21-BE9F-8EDE96C01376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB5FCC4D-ACB1-4F21-BE9F-8EDE96C01376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{273F6142-EC29-47C0-BDCC-DFDDC271690A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{273F6142-EC29-47C0-BDCC-DFDDC271690A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{273F6142-EC29-47C0-BDCC-DFDDC271690A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{273F6142-EC29-47C0-BDCC-DFDDC271690A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
