@@ -7,10 +7,7 @@ namespace ConsumerApi1.Application.Dto
         /// <summary>
         /// Car Id
         /// </summary>
-        [Key]
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int CarId { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Car Brand

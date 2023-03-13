@@ -51,11 +51,12 @@ namespace CarAPI.Controllers
         /// <summary>
         /// Post specific request to fake car service
         /// </summary>
-        /// <param name="NewRequest"></param>
+        /// <param name="ToPublish"></param>
+        /// <param name="newRequest"></param>
         /// <returns></returns>
 
         [HttpPost("PostRequestToFakeCarService/{ToPublish:bool}")]
-        public async Task<IActionResult> CreateAsyncToFakeCarService(bool ToPublish, [FromBody] CarRequestDto NewRequest)
+        public async Task<ActionResult<CarResponseDto>> CreateAsyncToFakeCarService(bool ToPublish, [FromBody] CarRequestDto newRequest)
         {
             try
             {
@@ -64,11 +65,14 @@ namespace CarAPI.Controllers
                 _client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage NewResponse = await _client.PostAsJsonAsync("api/CarService", NewRequest);
+                //var jsonRequest = JsonConvert.SerializeObject(newRequest);
+                HttpResponseMessage NewResponse = await _client.PostAsJsonAsync("api/CarService", newRequest);
+                
                 if (NewResponse.IsSuccessStatusCode)
                 {
                     var data = await NewResponse.Content.ReadAsStringAsync();
                     CarResponseDto? carResponse = JsonConvert.DeserializeObject<CarResponseDto>(data);
+                    carResponse.Id = Guid.NewGuid();
                     if(carResponse is null)
                     {
                         _logger.LogWarning(LogEvents.CarResponseBadRequest, "Bad request, car fake service response statuscode is null");
@@ -79,21 +83,23 @@ namespace CarAPI.Controllers
                         var sendMessageCommand = new SendMessageCommand { CarResponseDto = carResponse };
                         await _mediator.Send(sendMessageCommand);
                     }
-                    var checkCarResponseQuery = new CheckCarResponseQuery { CarId = carResponse.CarId };
+                    var checkCarResponseQuery = new CheckCarResponseQuery { Brand = carResponse.Brand, Model = carResponse.Model };
                     var checkResponse = await _mediator.Send(checkCarResponseQuery);
                     if(checkResponse == true)
                     {
-                        var updateCarResponseCommand = new UpdateCarResponseCommand { CarId = carResponse.CarId, CarResponse = carResponse };
+                        var updateCarResponseCommand = new UpdateCarResponseCommand { carResponseDto = carResponse };
                         await _mediator.Send(updateCarResponseCommand);
-                        _logger.LogInformation(LogEvents.UpdateCarResponseUpdated, "Updated an Car with car id: {CarId}", carResponse.CarId);
+                        _logger.LogInformation(LogEvents.UpdateCarResponseUpdated, "Updated an Car with car id: {CarId}", carResponse.Id);
+                        return Ok(updateCarResponseCommand.carResponseDto);
+
                     }
                     else
                     {
-                        var createCarResponseCommand = new CreateCarResponseCommand { CarResponse = carResponse };
+                        var createCarResponseCommand = new CreateCarResponseCommand { carResponseDto = carResponse };
                         await _mediator.Send(createCarResponseCommand);
-                        _logger.LogInformation(LogEvents.CreateCarResponseCreated, "Created an Car with car id: {CarId}", carResponse.CarId);
+                        _logger.LogInformation(LogEvents.CreateCarResponseCreated, "Created an Car with car id: {CarId}", carResponse.Id);
+                        return Ok(createCarResponseCommand.carResponseDto);
                     }
-                    return CreatedAtAction(nameof(CreateAsyncToFakeCarService), new { id = carResponse.CarId }, carResponse);
                 }
                 _logger.LogWarning(LogEvents.CarResponseBadRequest, "BadRequest, fake car service response statuscode is {StatusCode}", NewResponse.StatusCode);
                 return BadRequest();

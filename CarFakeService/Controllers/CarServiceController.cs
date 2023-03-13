@@ -14,7 +14,6 @@ namespace CarFakeService.Controllers
             {
                 var response = new CarResponseDto
                 {
-                    CarId = carRequest.CarId,
                     Brand = carRequest.Brand,
                     Model = carRequest.Model,
                     Engines = new()
