@@ -1,17 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CarAPI.Application.Dto
 {
     public class CarRequestDto
     {
-        /// <summary>
-        /// Car Id
-        /// </summary>
-        [Key]
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int CarId { get; set; }
-
         /// <summary>
         /// Car Brand
         /// </summary>

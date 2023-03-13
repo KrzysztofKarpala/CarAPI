@@ -5,10 +5,20 @@ using ConsumerApi2.Service;
 using MediatR;
 using Messaging.Shared;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+
+#pragma warning disable 618
+BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
+BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
+#pragma warning restore
 // Add services to the container.
 
 builder.Services.AddMediatR(typeof(Program));
