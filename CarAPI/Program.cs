@@ -9,6 +9,10 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using System.Reflection;
 
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+DotEnv.Load(dotenv);
+
 var builder = WebApplication.CreateBuilder(args);
 
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
