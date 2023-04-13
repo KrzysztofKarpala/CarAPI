@@ -10,6 +10,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
 using System.Reflection;
 
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+DotEnv.Load(dotenv);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
