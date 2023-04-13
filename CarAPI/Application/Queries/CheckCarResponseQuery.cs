@@ -3,10 +3,8 @@ using MediatR;
 
 namespace CarAPI.Application.Queries
 {
-    public class CheckCarResponseQuery : IRequest<bool>
+    public record CheckCarResponseQuery(string brand, string model) : IRequest<bool>
     {
-        public string Brand { get; set; }
-        public string Model { get; set; }
     }
     public class CheckCarResponseQueryHandler : IRequestHandler<CheckCarResponseQuery, bool>
     {
@@ -18,7 +16,7 @@ namespace CarAPI.Application.Queries
 
         public async Task<bool> Handle(CheckCarResponseQuery request, CancellationToken cancellationToken)
         {
-            return await _carRepository.CheckCarBrandAndModel(request.Brand, request.Model);
+            return await _carRepository.CheckCarBrandAndModel(request.brand, request.model);
         }
     }
 }

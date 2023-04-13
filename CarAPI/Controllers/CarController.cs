@@ -1,4 +1,5 @@
-﻿using CarAPI.Application.Commands;
+﻿using CarAPI.Application.Client;
+using CarAPI.Application.Commands;
 using CarAPI.Application.Dto;
 using CarAPI.Application.Queries;
 using CarAPI.Core.Repository;
@@ -15,13 +16,11 @@ namespace CarAPI.Controllers
     public class CarController : ControllerBase
     {
         private readonly ILogger<CarController> _logger;
-        private readonly HttpClient _client;
         private readonly IMediator _mediator;
 
-        public CarController(ILogger<CarController> logger, HttpClient client, IMediator mediator)
+        public CarController(ILogger<CarController> logger, IMediator mediator)
         {
             _logger = logger;
-            _client = client;
             _mediator = mediator;
         }
 
@@ -30,7 +29,7 @@ namespace CarAPI.Controllers
         /// </summary>
         /// <returns></returns>
 
-        [HttpGet("GetAllResponses")]
+        [HttpGet("getallresponses")]
         public async Task<ActionResult<List<CarResponseDto>>> GetAllCarResponseAsync()
         {
             try
@@ -42,9 +41,8 @@ namespace CarAPI.Controllers
             }
             catch (Exception ex)
             {
-                var message = "Failed to fetch Car responses";
-                _logger.LogWarning(LogEvents.CarResponseInternalError, ex, message);
-                return StatusCode(StatusCodes.Status500InternalServerError, message);
+                _logger.LogWarning(LogEvents.CarResponseInternalError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -52,62 +50,42 @@ namespace CarAPI.Controllers
         /// Post specific request to fake car service
         /// </summary>
         /// <param name="ToPublish"></param>
-        /// <param name="newRequest"></param>
-        /// <returns></returns>
+        /// <param name="carRequestDto"></param>
+        /// <returns></returns>s
 
-        [HttpPost("PostRequestToFakeCarService/{ToPublish:bool}")]
-        public async Task<ActionResult<CarResponseDto>> CreateAsyncToFakeCarService(bool ToPublish, [FromBody] CarRequestDto newRequest)
+        [HttpPost("postrequesttocarservice/{ToPublish:bool}")]
+        public async Task<ActionResult<CarResponseDto>> CreateAsyncToCarService(bool ToPublish, [FromBody] CarRequestDto carRequestDto)
         {
             try
             {
-                _client.BaseAddress = new Uri("http://host.docker.internal:8091/");
-                _client.DefaultRequestHeaders.Accept.Clear();
-                _client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-
-                //var jsonRequest = JsonConvert.SerializeObject(newRequest);
-                HttpResponseMessage NewResponse = await _client.PostAsJsonAsync("api/CarService", newRequest);
-                
-                if (NewResponse.IsSuccessStatusCode)
+                var postToCarServiceCommand = new PostToCarServiceCommand(carRequestDto);
+                var carResponse = await _mediator.Send(postToCarServiceCommand);
+                if (ToPublish == true)
                 {
-                    var data = await NewResponse.Content.ReadAsStringAsync();
-                    CarResponseDto? carResponse = JsonConvert.DeserializeObject<CarResponseDto>(data);
-                    carResponse.Id = Guid.NewGuid();
-                    if(carResponse is null)
-                    {
-                        _logger.LogWarning(LogEvents.CarResponseBadRequest, "Bad request, car fake service response statuscode is null");
-                        return BadRequest();
-                    }
-                    if(ToPublish == true)
-                    {
-                        var sendMessageCommand = new SendMessageCommand { CarResponseDto = carResponse };
-                        await _mediator.Send(sendMessageCommand);
-                    }
-                    var checkCarResponseQuery = new CheckCarResponseQuery { Brand = carResponse.Brand, Model = carResponse.Model };
-                    var checkResponse = await _mediator.Send(checkCarResponseQuery);
-                    if(checkResponse == true)
-                    {
-                        var updateCarResponseCommand = new UpdateCarResponseCommand { carResponseDto = carResponse };
-                        await _mediator.Send(updateCarResponseCommand);
-                        _logger.LogInformation(LogEvents.UpdateCarResponseUpdated, "Updated an Car with car id: {CarId}", carResponse.Id);
-                        return Ok(updateCarResponseCommand.carResponseDto);
-
-                    }
-                    else
-                    {
-                        var createCarResponseCommand = new CreateCarResponseCommand { carResponseDto = carResponse };
-                        await _mediator.Send(createCarResponseCommand);
-                        _logger.LogInformation(LogEvents.CreateCarResponseCreated, "Created an Car with car id: {CarId}", carResponse.Id);
-                        return Ok(createCarResponseCommand.carResponseDto);
-                    }
+                    var sendMessageCommand = new SendMessageCommand(carResponse);
+                    await _mediator.Send(sendMessageCommand);
                 }
-                _logger.LogWarning(LogEvents.CarResponseBadRequest, "BadRequest, fake car service response statuscode is {StatusCode}", NewResponse.StatusCode);
-                return BadRequest();
+                var checkCarResponseQuery = new CheckCarResponseQuery(carResponse.Brand, carResponse.Model);
+                var checkResponse = await _mediator.Send(checkCarResponseQuery);
+                if (checkResponse == true)
+                {
+                    var updateCarResponseCommand = new UpdateCarResponseCommand(carResponse);
+                    var res = await _mediator.Send(updateCarResponseCommand);
+                    _logger.LogInformation(LogEvents.UpdateCarResponseUpdated, "Updated an Car with car id: {CarId}", res.Id);
+                    return res;
+
+                }
+                else
+                {
+                    var createCarResponseCommand = new CreateCarResponseCommand(carResponse);
+                    var res = await _mediator.Send(createCarResponseCommand);
+                    _logger.LogInformation(LogEvents.CreateCarResponseCreated, "Created an Car with car id: {CarId}", res.Id);
+                    return res;
+                }
             }
             catch (Exception ex)
             {
-                var message = "Failed to fetch Car responses";
-                _logger.LogWarning(LogEvents.CarResponseInternalError, ex, message);
+                _logger.LogWarning(LogEvents.CarResponseInternalError, ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

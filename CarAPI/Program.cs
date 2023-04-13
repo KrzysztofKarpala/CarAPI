@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using System.Reflection;
+using CarAPI.Application.Client;
 
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
@@ -23,14 +24,16 @@ BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
 #pragma warning restore
 
 
+builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddSingleton<IRabbitMqCarApiRepository, RabbitMqCarApiRepository>();
+builder.Services.AddScoped<HttpClient, HttpClient>();
+
 builder.Services.AddMediatR(typeof(Program));
+builder.Services.AddMediatR(typeof(PostToCarServiceCommand).GetTypeInfo().Assembly);
 
 builder.Services.Configure<CarDatabaseSettings>(
     builder.Configuration.GetSection("CarDatabase"));
 
-builder.Services.AddScoped<ICarRepository, CarRepository>();
-builder.Services.AddSingleton<IRabbitMqCarApiRepository, RabbitMqCarApiRepository>();
-builder.Services.AddScoped<HttpClient, HttpClient>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Add services to the container.
 
@@ -54,7 +57,6 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.SetUpRabbitMq(builder.Configuration);
 builder.Services.AddSingleton<RabbitMqCarApiRepository>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
