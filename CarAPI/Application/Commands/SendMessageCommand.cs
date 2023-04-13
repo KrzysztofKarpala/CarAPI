@@ -4,9 +4,8 @@ using MediatR;
 
 namespace CarAPI.Application.Commands
 {
-    public class SendMessageCommand : IRequest
+    public record SendMessageCommand(CarResponseDto carResponseDto) : IRequest
     {
-        public CarResponseDto CarResponseDto { get; set; }
     }
     public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand>
     {
@@ -19,7 +18,7 @@ namespace CarAPI.Application.Commands
         public async Task<Unit> Handle(SendMessageCommand request, CancellationToken cancellationToken)
         {
             await Task.Yield();
-            _rabbitMqCarApiRepository.SendMessage(request.CarResponseDto);
+            _rabbitMqCarApiRepository.SendMessage(request.carResponseDto);
             return Unit.Value;
         }
     }

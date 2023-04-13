@@ -31,7 +31,7 @@ namespace CarAPI.Application.Queries
             catch (Exception ex)
             {
                 _logger.LogWarning(LogEvents.GetCarResponseQueryHandlerFailure, ex, "GetCarResponseQueryHandler failed");
-                return null;
+                throw ex;
             }
         }
     }

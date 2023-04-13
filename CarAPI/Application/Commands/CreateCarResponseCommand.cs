@@ -7,11 +7,10 @@ using MediatR;
 
 namespace CarAPI.Application.Commands
 {
-    public class CreateCarResponseCommand : IRequest
+    public record CreateCarResponseCommand(CarResponseDto carResponseDto) : IRequest<CarResponseDto>
     {
-        public CarResponseDto carResponseDto { get; set; }
     }
-    public class CreateCarResponseCommandHandler : IRequestHandler<CreateCarResponseCommand>
+    public class CreateCarResponseCommandHandler : IRequestHandler<CreateCarResponseCommand, CarResponseDto>
     {
         private readonly ICarRepository _carRepository;
         private readonly ILogger<CreateCarResponseCommandHandler> _logger;
@@ -24,18 +23,25 @@ namespace CarAPI.Application.Commands
             _mapper = mapper;
         }
 
-        public async Task<Unit> Handle(CreateCarResponseCommand response, CancellationToken cancellationToken)
+        public async Task<CarResponseDto> Handle(CreateCarResponseCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var carResponse = _mapper.Map<CarResponse>(response.carResponseDto);
+                var engines = new List<CarResponseEngine>();
+                foreach(var engineDto in request.carResponseDto.Engines)
+                {
+                    var engine = CarResponseEngine.CreateCarResponseEngine(engineDto.Capacity, engineDto.Hp, engineDto.Fuel);
+                    engines.Add(engine);
+                }
+                var carResponse = CarResponse.CreateCarResponse(request.carResponseDto.Id, request.carResponseDto.Brand, request.carResponseDto.Model, engines);
                 await _carRepository.CreateAsync(carResponse);
+                return _mapper.Map<CarResponseDto>(carResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(LogEvents.CreateCarResponseCommandHandlerFailure, ex, "CreateCarResponseCommandHandler failed");
+                throw ex;
             }
-            return Unit.Value;
         }
     }
 }

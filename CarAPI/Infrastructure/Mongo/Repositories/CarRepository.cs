@@ -48,9 +48,10 @@ namespace CarAPI.Infrastructure.Mongo.Repositories
 
         public async Task UpdateAsync(CarResponse carResponse)
         {
+            var carResponseDocument = _mapper.Map<CarResponseDocument>(carResponse);
             var oldCarResponse = await _carCollection.Find(x => x.Model == carResponse.Model && x.Brand == carResponse.Brand).FirstOrDefaultAsync();
-            carResponse.Id = oldCarResponse.Id;
-            await _carCollection.ReplaceOneAsync(x => x.Brand == carResponse.Brand && x.Model == carResponse.Model, _mapper.Map<CarResponseDocument>(carResponse));
+            carResponseDocument.Id = oldCarResponse.Id;
+            await _carCollection.ReplaceOneAsync(x => x.Brand == carResponse.Brand && x.Model == carResponse.Model, carResponseDocument);
         }
     }
 }
